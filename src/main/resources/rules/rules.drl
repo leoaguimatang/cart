@@ -1,0 +1,112 @@
+package com.exam.cart;
+
+import com.exam.cart.impl.ShoppingCartImpl;
+import com.exam.cart.Item;
+
+rule "3 for 2 Unlimited 1GB sim promo"
+when
+    $cart : ShoppingCartImpl()
+then
+boolean entitled = false;
+for (Item item : $cart.items()) {
+    Product product = item.getProduct();
+    if (product.getCode().equals("ult_small") && item.getQuantity() == 3) {
+        $cart.addDiscount(product.getPrice());
+        entitled = true;
+        break;
+    }
+}
+if (entitled) {
+    System.out.println("\n3 for 2 Unlimited 1GB sim promo rule");
+    System.out.println("Items Added");
+    for (Item itm1 : $cart.items()) {
+        System.out.println(itm1.getQuantity() + "x " + itm1.getProduct().getName());
+    }
+
+    System.out.println("Expected Total\n" + $cart.total());
+    System.out.println("Expected Items");
+    for (Item itm2 : $cart.items()) {
+        System.out.println(itm2.getQuantity() + "x " + itm2.getProduct().getName());
+    }
+}
+end
+
+rule "Unlimited 5GB sim bulk discount"
+when
+    $cart : ShoppingCartImpl()
+then
+boolean entitled = false;
+for (Item item : $cart.items()) {
+    Product product = item.getProduct();
+    if (product.getCode().equals("ult_large") && item.getQuantity() > 3) {
+        product.setPrice(39.90);
+        entitled = true;
+        break;
+    }
+}
+if (entitled) {
+    System.out.println("\nApplying Unlimited 5GB sim bulk discount rule");
+    System.out.println("Items Added");
+    for (Item itm1 : $cart.items()) {
+        System.out.println(itm1.getQuantity() + "x " + itm1.getProduct().getName());
+    }
+
+    System.out.println("Expected Total\n" + $cart.total());
+    System.out.println("Expected Items");
+    for (Item itm2 : $cart.items()) {
+        System.out.println(itm2.getQuantity() + "x " + itm2.getProduct().getName());
+    }
+}
+end
+
+rule "2 Unlimited 2GB sim bundle discount"
+when
+    $cart : ShoppingCartImpl()
+then
+boolean entitled = false;
+int qty = 0;
+for (Item item : $cart.items()) {
+    Product product = item.getProduct();
+    if (product.getCode().equals("ult_medium") && item.getQuantity() >= 2) {
+        qty = item.getQuantity();
+        entitled = true;
+        break;
+    }
+}
+if (entitled) {
+    System.out.println("\nApplying 2 Unlimited 2GB sim bundle discount rule");
+    System.out.println("Items Added");
+    for (Item itm1 : $cart.items()) {
+        System.out.println(itm1.getQuantity() + "x " + itm1.getProduct().getName());
+    }
+
+    $cart.add(new Item((new Product("1gb", "1 GB Data-pack", 0)), qty));
+    System.out.println("Expected Total\n" + $cart.total());
+    System.out.println("Expected Items");
+    for (Item itm2 : $cart.items()) {
+        System.out.println(itm2.getQuantity() + "x " + itm2.getProduct().getName());
+    }
+}
+end
+
+rule "With promo code"
+when
+    $cart : ShoppingCartImpl()
+then
+    if ($cart.getPromo().equals("I<3AMAYSIM")) {
+        System.out.println("\nApplying With promo code rule");
+        System.out.println("Items Added");
+        for (Item itm1 : $cart.items()) {
+            System.out.println(itm1.getQuantity() + "x " + itm1.getProduct().getName());
+        }
+
+        System.out.println("`I<3AMAYSIM` promo applied");
+        $cart.addDiscount($cart.total() * 0.1);
+        System.out.println("Expected Total\n" + $cart.total());
+        System.out.println("Expected Items");
+        for (Item itm2 : $cart.items()) {
+            System.out.println(itm2.getQuantity() + "x " + itm2.getProduct().getName());
+        }
+
+    }
+end
